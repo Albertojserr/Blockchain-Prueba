@@ -30,19 +30,17 @@ def fetch_posts():
                 content.append(tx)
 
         global posts
-        posts = sorted(content, key=lambda k: k['timestamp'],
-                       reverse=True)
+        posts = sorted(content, key=lambda k: k['timestamp'], reverse=True)
 
 
 @app.route('/')
 def index():
     fetch_posts()
-    return render_template('index.html',
-                           title='YourNet: Decentralized '
-                                 'content sharing',
-                           posts=posts,
-                           node_address=CONNECTED_NODE_ADDRESS,
-                           readable_time=timestamp_to_string)
+    return render_template('index.html', title='YourNet: Decentralized '
+                            'content sharing',
+                            posts=posts,
+                            node_address=CONNECTED_NODE_ADDRESS,
+                            readable_time=timestamp_to_string)
 
 
 @app.route('/submit', methods=['POST'])
@@ -62,8 +60,8 @@ def submit_textarea():
     new_tx_address = "{}/new_transaction".format(CONNECTED_NODE_ADDRESS)
 
     requests.post(new_tx_address,
-                  json=post_object,
-                  headers={'Content-type': 'application/json'})
+                    json=post_object,
+                    headers={'Content-type': 'application/json'})
 
     return redirect('/')
 
