@@ -50,12 +50,16 @@ def submit_textarea():
     """
     dinero = request.form["dinero"]
     asunto= request.form["asunto"]
+    if asunto =="":
+        asunto=""
+    else:
+        asunto="Por el asunto "+ asunto
     recibidor=request.form["recibidor"]
     author = request.form["author"]
 
     post_object = {
         'author': author,
-        'content': dinero +"€ a "+ recibidor +" por el asunto "+ asunto,
+        'content': dinero +"€ a "+ recibidor +"\n"+ asunto,
     }
 
     # Submit a transaction
