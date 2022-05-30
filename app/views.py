@@ -59,7 +59,8 @@ def submit_textarea():
 
     post_object = {
         'author': author,
-        'content': dinero +"€ a "+ recibidor +"\n"+ asunto,
+        'content': dinero +"€ a "+ recibidor, #+"\n"+ asunto
+        'content': asunto,
     }
 
     # Submit a transaction
