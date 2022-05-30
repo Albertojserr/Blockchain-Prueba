@@ -49,12 +49,13 @@ def submit_textarea():
     Endpoint to create a new transaction via our application.
     """
     dinero = request.form["dinero"]
+    asunto= request.form["asunto"]
     recibidor=request.form["recibidor"]
     author = request.form["author"]
 
     post_object = {
         'author': author,
-        'content': dinero +"€ a "+ recibidor,
+        'content': dinero +"€ a "+ recibidor +" por el asunto "+ asunto,
     }
 
     # Submit a transaction
