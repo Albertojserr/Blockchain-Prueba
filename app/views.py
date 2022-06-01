@@ -35,8 +35,8 @@ def fetch_posts():
 @app.route('/')
 def index():
     fetch_posts()
-    return render_template('index.html', title='Transacción descentralizada:  '
-                            '¿A quién quieres ingresarle el dinero?',
+    return render_template('index.html', title='Transacción descentralizada',
+                            subtitle=':  ¿A quién quieres ingresarle el dinero?',
                             posts=posts,
                             node_address=CONNECTED_NODE_ADDRESS,
                             readable_time=timestamp_to_string)
@@ -50,13 +50,14 @@ def submit_textarea():
     dinero = request.form["dinero"]
     asunto= request.form["asunto"]
     if asunto !="":
-        asunto=" por: "+ asunto
+        asunto=" Por: "+ asunto
     recibidor=request.form["recibidor"]
     author = request.form["author"]
 
     post_object = {
         'author': author,
-        'content': dinero +"€ a "+ recibidor + asunto,
+        'content': dinero +"€ a "+ recibidor,
+        'subcontent' :asunto,
     }
 
     # Enviar la transacción a nuestro nodo de cadena de bloques.
