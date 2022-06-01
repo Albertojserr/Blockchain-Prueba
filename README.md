@@ -1,5 +1,5 @@
 # Blockchain-Prueba
-$ cd python_blockchain_app
+$ cd Blockchain-Prueba
 $ pip install -r requirements.txt
 Linux y Mac:
 $ export FLASK_APP=node_server.py
