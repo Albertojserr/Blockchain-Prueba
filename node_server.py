@@ -16,14 +16,15 @@ class Block:
 
     def compute_hash(self):
         """
-        A function that return the hash of the block contents.
+        Una función que devuelve el hash del contenido del bloque.
+
         """
         block_string = json.dumps(self.__dict__, sort_keys=True)
         return sha256(block_string.encode()).hexdigest()
 
 
 class Blockchain:
-    # difficulty of our PoW algorithm
+    # dificultad de nuestro algoritmo PoW
     difficulty = 2
 
     def __init__(self):
@@ -32,9 +33,9 @@ class Blockchain:
 
     def create_genesis_block(self):
         """
-        A function to generate genesis block and appends it to
-        the chain. The block has index 0, previous_hash as 0, and
-        a valid hash.
+        Una función para generar un bloque de génesis y lo agrega a
+        la cadena. El bloque tiene índice 0, anterior_hash como 0 y
+        un hash válido.
         """
         genesis_block = Block(0, [], 0, "0")
         genesis_block.hash = genesis_block.compute_hash()
@@ -46,11 +47,10 @@ class Blockchain:
 
     def add_block(self, block, proof):
         """
-        A function that adds the block to the chain after verification.
-        Verification includes:
-        * Checking if the proof is valid.
-        * The previous_hash referred in the block and the hash of latest block
-          in the chain match.
+        Una función que agrega el bloque a la cadena después de la verificación.
+        La verificación incluye:
+         * Comprobación de si la prueba es válida.
+         * El anterior_hash referido en el bloque y el hash del último bloque en el partido de la cadena.
         """
         previous_hash = self.last_block.hash
 
@@ -67,8 +67,8 @@ class Blockchain:
     @staticmethod
     def proof_of_work(block):
         """
-        Function that tries different values of nonce to get a hash
-        that satisfies our difficulty criteria.
+        Función que prueba diferentes valores de nonce para obtener un hash
+        que satisfaga nuestros criterios de dificultad.
         """
         block.nonce = 0
 
@@ -85,8 +85,8 @@ class Blockchain:
     @classmethod
     def is_valid_proof(cls, block, block_hash):
         """
-        Check if block_hash is valid hash of block and satisfies
-        the difficulty criteria.
+        Compruebe si block_hash es un hash de bloque válido y cumple
+        los criterios de dificultad.
         """
         return (block_hash.startswith('0' * Blockchain.difficulty) and
                 block_hash == block.compute_hash())
@@ -98,8 +98,8 @@ class Blockchain:
 
         for block in chain:
             block_hash = block.hash
-            # remove the hash field to recompute the hash again
-            # using `compute_hash` method.
+            # eliminar el campo hash para volver a calcular el hash nuevamente
+            # usando el método de `compute_hash`
             delattr(block, "hash")
 
             if not cls.is_valid_proof(block, block_hash) or \
@@ -113,9 +113,9 @@ class Blockchain:
 
     def mine(self):
         """
-        This function serves as an interface to add the pending
-        transactions to the blockchain by adding them to the block
-        and figuring out Proof Of Work.
+        Esta función sirve como interfaz para agregar las pendientes
+        transacciones a la cadena de bloques agregándolas al bloque
+        y averiguar la Prueba de trabajo.
         """
         if not self.unconfirmed_transactions:
             return False
@@ -137,16 +137,15 @@ class Blockchain:
 
 app = Flask(__name__)
 
-# the node's copy of blockchain
 blockchain = Blockchain()
 blockchain.create_genesis_block()
 
-# the address to other participating members of the network
+# la dirección a otros miembros participantes de la red
 peers = set()
 
 
-# endpoint to submit a new transaction. This will be used by
-# our application to add new data (posts) to the blockchain
+# punto final para enviar una nueva transacción. Este será utilizado por
+# nuestra aplicación para agregar nuevos datos (publicaciones) a la cadena de bloques
 @app.route('/new_transaction', methods=['POST'])
 def new_transaction():
     tx_data = request.get_json()
@@ -163,9 +162,6 @@ def new_transaction():
     return "Success", 201
 
 
-# endpoint to return the node's copy of the chain.
-# Our application will be using this endpoint to query
-# all the posts to display.
 @app.route('/chain', methods=['GET'])
 def get_chain():
     chain_data = []
@@ -176,45 +172,42 @@ def get_chain():
                        "peers": list(peers)})
 
 
-# endpoint to request the node to mine the unconfirmed
-# transactions (if any). We'll be using it to initiate
-# a command to mine from our application itself.
+
 @app.route('/mine', methods=['GET'])
 def mine_unconfirmed_transactions():
     result = blockchain.mine()
     if not result:
         return "No hay bloques para asignar"
     else:
-        # Making sure we have the longest chain before announcing to the network
+        # Asegurarnos de tener la cadena más larga antes de anunciar a la red
         chain_length = len(blockchain.chain)
         consensus()
         if chain_length == len(blockchain.chain):
-            # announce the recently mined block to the network
+            # anunciar el bloque recientemente minado a la red
             announce_new_block(blockchain.last_block)
-        return "El bloque #{} es mío.".format(blockchain.last_block.index)
+        return "Bloque #{} minado.".format(blockchain.last_block.index)
 
 
-# endpoint to add new peers to the network.
+# punto final para agregar un nuevo bloque a la cadena de bloques
 @app.route('/register_node', methods=['POST'])
 def register_new_peers():
     node_address = request.get_json()["node_address"]
     if not node_address:
         return "Invalid data", 400
 
-    # Add the node to the peer list
+    # agregar el nuevo nodo a la red
     peers.add(node_address)
 
-    # Return the consensus blockchain to the newly registered node
-    # so that he can sync
+    # devolver la cadena actualizada
     return get_chain()
 
 
 @app.route('/register_with', methods=['POST'])
 def register_with_existing_node():
     """
-    Internally calls the `register_node` endpoint to
-    register current node with the node specified in the
-    request, and sync the blockchain as well as peer data.
+    Internamente llama al extremo `register_node` para
+    registrar el nodo actual con el nodo especificado en la solicitud
+    y sincronice la cadena de bloques y los datos de sus pares.
     """
     node_address = request.get_json()["node_address"]
     if not node_address:
@@ -223,20 +216,20 @@ def register_with_existing_node():
     data = {"node_address": request.host_url}
     headers = {'Content-Type': "application/json"}
 
-    # Make a request to register with remote node and obtain information
+    # enviar solicitud POST a la dirección del nodo especificado
     response = requests.post(node_address + "/register_node",
                              data=json.dumps(data), headers=headers)
 
     if response.status_code == 200:
         global blockchain
         global peers
-        # update chain and the peers
+        # actualizar la cadena de bloques y los datos de los pares
         chain_dump = response.json()['chain']
         blockchain = create_chain_from_dump(chain_dump)
         peers.update(response.json()['peers'])
         return "Registration successful", 200
     else:
-        # if something goes wrong, pass it on to the API response
+        # si el nodo no se pudo registrar, devolver un error
         return response.content, response.status_code
 
 
@@ -245,7 +238,7 @@ def create_chain_from_dump(chain_dump):
     generated_blockchain.create_genesis_block()
     for idx, block_data in enumerate(chain_dump):
         if idx == 0:
-            continue  # skip genesis block
+            continue  # omitir el bloque genesis
         block = Block(block_data["index"],
                       block_data["transactions"],
                       block_data["timestamp"],
@@ -258,9 +251,7 @@ def create_chain_from_dump(chain_dump):
     return generated_blockchain
 
 
-# endpoint to add a block mined by someone else to
-# the node's chain. The block is first verified by the node
-# and then added to the chain.
+# punto final para sincronizar la cadena de bloques con los pares
 @app.route('/add_block', methods=['POST'])
 def verify_and_add_block():
     block_data = request.get_json()
@@ -279,7 +270,7 @@ def verify_and_add_block():
     return "Block added to the chain", 201
 
 
-# endpoint to query unconfirmed transactions
+# punto final para sincronizar la cadena de bloques con los pares
 @app.route('/pending_tx')
 def get_pending_tx():
     return json.dumps(blockchain.unconfirmed_transactions)
@@ -287,8 +278,8 @@ def get_pending_tx():
 
 def consensus():
     """
-    Our naive consnsus algorithm. If a longer valid chain is
-    found, our chain is replaced with it.
+    Nuestro ingenuo algoritmo de consenso. Si una cadena válida más larga es
+    encontrada, nuestra cadena es reemplazada por ella.
     """
     global blockchain
 
@@ -312,9 +303,9 @@ def consensus():
 
 def announce_new_block(block):
     """
-    A function to announce to the network once a block has been mined.
-    Other blocks can simply verify the proof of work and add it to their
-    respective chains.
+    Una función para anunciar a la red una vez que se ha minado un bloque.
+    Otros bloques pueden simplemente verificar la prueba de trabajo y agregarla a su
+    respectivas cadenas.
     """
     for peer in peers:
         url = "{}add_block".format(peer)
@@ -323,5 +314,5 @@ def announce_new_block(block):
                       data=json.dumps(block.__dict__, sort_keys=True),
                       headers=headers)
 
-# Uncomment this line if you want to specify the port number in the code
+# Descomente esta línea si desea especificar el número de puerto en el código
 #app.run(debug=True, port=8000)
